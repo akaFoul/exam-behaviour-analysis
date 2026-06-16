@@ -1,214 +1,106 @@
-\# Data Processing \& Transformation Log
+# Data Processing & Transformation Log
 
+## 1. Source Data
 
+* **Database:** `exam_event_logs` (PostgreSQL)
+* **Table:** `candidate_log`
+* **Total Raw Rows:** 8,246,901
 
-\## 1. Source Data
+---
 
+## 2. Composite Key Validation
 
+### Issue
 
-\* \*\*Database:\*\* `exam\_event\_logs` (PostgreSQL)
+`log_id` was not unique across the dataset.
 
-\* \*\*Table:\*\* `candidate\_log`
-
-\* \*\*Total Raw Rows:\*\* 8,246,901
-
-
-
-\---
-
-
-
-\## 2. Composite Key Validation
-
-
-
-\### Issue
-
-
-
-`log\_id` was not unique across the dataset.
-
-
-
-\### Action
-
-
+### Action
 
 Created a composite identifier:
 
-
-
 ```python
-
-composite\_key = log\_id + "\_" + candidate\_id
-
+composite_key = log_id + "_" + candidate_id
 ```
 
+### Result
 
+Verified uniqueness across all **8,246,901** records.
 
-\### Result
+---
 
-
-
-Verified uniqueness across all \*\*8,246,901\*\* records.
-
-
-
-\---
-
-
-
-\## 3. Data Type Corrections
-
-
+## 3. Data Type Corrections
 
 | Column                | Original Type | Corrected Type | Reason                        |
-
 | --------------------- | ------------- | -------------- | ----------------------------- |
+| `question_section`    | object        | Int64          | Numeric grouping and sorting  |
+| `question_display_id` | object        | Int64          | Numeric ordering of questions |
+| `subject_id`          | object        | Int64          | Aggregation and filtering     |
+| `logged_at`           | object        | datetime64     | Time-based analysis           |
 
-| `question\_section`    | object        | Int64          | Numeric grouping and sorting  |
+---
 
-| `question\_display\_id` | object        | Int64          | Numeric ordering of questions |
-
-| `subject\_id`          | object        | Int64          | Aggregation and filtering     |
-
-| `logged\_at`           | object        | datetime64     | Time-based analysis           |
-
-
-
-\---
-
-
-
-\## 4. Null Handling
-
-
+## 4. Null Handling
 
 | Column              | Issue                                | Action                        |
-
 | ------------------- | ------------------------------------ | ----------------------------- |
+| `question_response` | NULL values for unanswered questions | Replaced with `"No Response"` |
+| `logged_at`         | No missing values after processing   | No action required            |
 
-| `question\_response` | NULL values for unanswered questions | Replaced with `"No Response"` |
+---
 
-| `logged\_at`         | No missing values after processing   | No action required            |
+## 5. Auto Save Event Segregation
 
+### Observation
 
+System-generated **Auto Save** events accounted for **7,482,437 rows (90.73%)** of the dataset.
 
-\---
-
-
-
-\## 5. Auto Save Event Segregation
-
-
-
-\### Observation
-
-
-
-System-generated \*\*Auto Save\*\* events accounted for \*\*7,482,437 rows (90.73%)\*\* of the dataset.
-
-
-
-\### Action
-
-
+### Action
 
 Split the data into separate analytical datasets:
 
-
-
 | Dataset       | Rows      | Purpose                        |
-
 | ------------- | --------- | ------------------------------ |
+| `df_filtered` | 764,464   | Candidate behavioural analysis |
+| `df_raw`      | 7,482,437 | Response pattern analysis      |
 
-| `df\_filtered` | 764,464   | Candidate behavioural analysis |
-
-| `df\_raw`      | 7,482,437 | Response pattern analysis      |
-
-
-
-\### Reason
-
-
+### Reason
 
 Auto Save events do not represent deliberate candidate actions and would significantly distort behavioural metrics if included.
 
+---
 
-
-\---
-
-
-
-\## 6. Feature Engineering
-
-
+## 6. Feature Engineering
 
 | Feature     | Source Column | Logic                              |
-
 | ----------- | ------------- | ---------------------------------- |
+| `hour`      | `logged_at`   | `dt.hour`                          |
+| `minute`    | `logged_at`   | `dt.minute`                        |
+| `time_slot` | `hour`        | Categorized into exam-time buckets |
 
-| `hour`      | `logged\_at`   | `dt.hour`                          |
+---
 
-| `minute`    | `logged\_at`   | `dt.minute`                        |
-
-| `time\_slot` | `hour`        | Categorized into exam-time buckets |
-
-
-
-\---
-
-
-
-\## 7. Data Quality Investigation
-
-
+## 7. Data Quality Investigation
 
 During processing, all Auto Save records initially appeared with NULL timestamps.
 
-
-
-\### Root Cause
-
-
+### Root Cause
 
 Notebook kernel state inconsistency during dataframe transformations.
 
+### Resolution
 
+Applied all transformations on the base dataframe (`df`) before creating derived datasets (`df_filtered` and `df_raw`).
 
-\### Resolution
-
-
-
-Applied all transformations on the base dataframe (`df`) before creating derived datasets (`df\_filtered` and `df\_raw`).
-
-
-
-\### Outcome
-
-
+### Outcome
 
 Timestamp integrity restored across all records.
 
+---
 
-
-\---
-
-
-
-\## 8. Final Dataset Summary
-
-
+## 8. Final Dataset Summary
 
 | Dataset       | Rows      | Unique Candidates | Purpose              |
-
 | ------------- | --------- | ----------------- | -------------------- |
-
 | `df`          | 8,246,901 | 87,999            | Master dataset       |
-
-| `df\_filtered` | 764,464   | 79,407            | Behavioural analysis |
-
-| `df\_raw`      | 7,482,437 | 87,999            | Response analysis    |
-
-
-
+| `df_filtered` | 764,464   | 79,407            | Behavioural analysis |
+| `df_raw`      | 7,482,437 | 87,999            | Response analysis    |
