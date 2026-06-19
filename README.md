@@ -19,7 +19,7 @@ exam-behaviour-analysis/
 | Source            | PostgreSQL dump (`exam_event_logs`) |
 | Table             | `candidate_log`                     |
 | Total Rows        | 8,246,901                           |
-| Unique Candidates | 87,999                              |
+| Unique Candidates | 8,246,901                             |
 | Exam Date         | 2025-09-23                          |
 | Time Range        | 09:00 – 19:12                       |
 
@@ -79,7 +79,7 @@ Open `data_extraction.ipynb` in Jupyter Notebook and run all cells from top to b
 
 ### 1. Activity Distribution by Section
 
-* **Section 1** recorded the highest number of both **Mark for Review** (~158k) and **UnMark for Review** (~84k) interactions.
+* **Section 1** recorded the highest number of both **Mark for Review** (~159k) and **UnMark for Review** (~84k) interactions.
 * The **UnMark-to-Mark ratio** was also highest in Section 1, indicating candidates revisited flagged questions more frequently in this section.
 * Sections 2, 3, and 4 showed very similar interaction volumes, suggesting comparable engagement levels across these sections.
 
@@ -91,11 +91,11 @@ Open `data_extraction.ipynb` in Jupyter Notebook and run all cells from top to b
 ### 3. Language Preference by Section
 
 * Sections 1–3 maintained a consistent language split of approximately **69% English** and **31% Hindi**.
-* Section 4 was conducted entirely in English, making it the only non-bilingual section.
+* Section 4 was conducted entirely in English, making it the only mono-language section.
 
 ### 4. Response Distribution (A/B/C/D)
 
-* Section 1 exhibited a significant **Option A preference**, with approximately **804k selections** compared to **440k selections** for Option B.
+* Section 1 exhibited a significant **Option A preference**, with approximately **763k selections** compared to **495k selections** for Option B.
 * This pattern may indicate a strong response bias and warrants further investigation.
 
 ### 5. Review Resolution Rate
@@ -110,13 +110,13 @@ Open `data_extraction.ipynb` in Jupyter Notebook and run all cells from top to b
 
 ### 7. Most Reviewed Questions
 
-* **Section 1 – Question 25** was flagged approximately **65k times**, nearly double any other question.
+* **Section 1 – Question 25** was flagged approximately **64k times**, nearly double any other question.
 * Question 25 appeared among the most reviewed questions across multiple sections, indicating a recurring review pattern.
 
 ### 8. Average Time Spent per Section
 
-* Section 1 recorded the highest average time spent (**12.38 minutes**).
-* Candidates spent nearly twice as much time in Section 1 compared to Section 2 (**6.89 minutes**), suggesting greater engagement during the initial section.
+* Section 1 recorded the highest average time spent (**32.38 minutes**).
+* Sections 3 & 4 sit in between (~21-22 mins) — moderate, fairly balanced pacing in the latter half of the exam
 
 ---
 
